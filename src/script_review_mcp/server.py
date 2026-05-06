@@ -11,6 +11,7 @@ from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
 from .docx_loader import format_episode_index, load_script
+from .render import render_diagnosis_report
 
 mcp = FastMCP("script-review")
 
@@ -88,6 +89,55 @@ def script_review_all(docx_path: str) -> str:
         docx_path: 診断対象 .docx の絶対パス
     """
     return _build_script_all_prompt(docx_path)
+
+
+@mcp.tool(
+    name="render_diagnosis_report",
+    description=(
+        "診断レポート（マークダウン）を読みやすい HTML / PNG に画像化する。"
+        "review_script で診断を実行した後、ユーザーが「画像にして」「見やすく」"
+        "「PNG にして」「ビジュアル化して」等と要求した時にこのツールを呼び出す。"
+        "PEARL 流の Pearl/Ink パレット、A案/B案/C案 ブロック、"
+        "優先度バッジ、スコアカード等が自動で適用される。"
+        "返り値は md/html/png 各ファイルへの絶対パス。"
+        "ユーザーには PNG のパスを案内し、Finder で開けることを伝える。"
+    ),
+)
+def render_report(
+    markdown_text: str,
+    title: str = "構造診断レポート",
+    output_dir: str | None = None,
+    formats: list[str] | None = None,
+) -> str:
+    """診断レポート (md) を HTML / PNG に画像化する.
+
+    Args:
+        markdown_text: 診断レポート本文 (markdown)。review_script を呼んだ後、
+            Claude が生成した診断レポート全文をそのまま渡す。
+        title: 出力 HTML/PNG のタイトル。例: "構造診断レポート — 名門サレ妻 第3稿"
+        output_dir: 出力先ディレクトリ。省略時は ``~/Desktop/script-review-output/``。
+            環境変数 ``SCRIPT_REVIEW_OUTPUT`` でも上書き可能。
+        formats: 出力したい形式のリスト。``["md", "html", "png"]`` のいずれか。
+            省略時は全形式を生成する。
+    """
+    paths = render_diagnosis_report(
+        markdown_text=markdown_text,
+        output_dir=output_dir,
+        title=title,
+        formats=formats,
+    )
+    lines = ["診断レポートの画像化が完了しました。"]
+    if "png" in paths:
+        lines.append(f"  📷 PNG: {paths['png']}")
+    if "html" in paths:
+        lines.append(f"  🌐 HTML: {paths['html']}")
+    if "md" in paths:
+        lines.append(f"  📝 Markdown: {paths['md']}")
+    if "png_error" in paths:
+        lines.append(f"  ⚠️ {paths['png_error']}")
+    lines.append("")
+    lines.append("Finder で PNG ファイルを開けば、すぐに視覚的に確認できます。")
+    return "\n".join(lines)
 
 
 def main() -> None:

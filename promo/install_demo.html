@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>script-review-mcp Install</title>
+<style>
+:root {
+  --bg: #1a1a1d;
+  --window-bg: #25252a;
+  --header: #313137;
+  --term-bg: #0f0f12;
+  --text: #e8e8e8;
+  --green: #4cd97b;
+  --blue: #6fb5ff;
+  --yellow: #f3c969;
+  --purple: #c98bff;
+  --gray: #a0a0a8;
+  --dim: #6c6c75;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 56px;
+  background: var(--bg);
+  font-family: "SF Mono", "JetBrains Mono", Menlo, Monaco, monospace;
+  width: 1480px;
+}
+.window {
+  background: var(--window-bg);
+  border-radius: 12px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
+  overflow: hidden;
+}
+.titlebar {
+  background: var(--header);
+  height: 38px;
+  display: flex; align-items: center; padding: 0 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.3);
+}
+.dot {
+  width: 13px; height: 13px; border-radius: 50%;
+  margin-right: 8px;
+}
+.dot-r { background: #ff5f57; }
+.dot-y { background: #febc2e; }
+.dot-g { background: #28c840; }
+.tab {
+  flex: 1; text-align: center;
+  color: #a0a0a8;
+  font-size: 13px;
+  font-family: -apple-system, "Hiragino Sans", sans-serif;
+}
+.term {
+  background: var(--term-bg);
+  color: var(--text);
+  padding: 28px 32px 36px;
+  font-size: 15px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+.prompt { color: var(--green); }
+.cmd { color: var(--text); }
+.flag { color: var(--yellow); }
+.path { color: var(--blue); }
+.comment { color: var(--dim); }
+.ok { color: var(--green); font-weight: 700; }
+.info { color: var(--gray); }
+.purple { color: var(--purple); }
+.divider { color: var(--dim); }
+</style>
+</head>
+<body>
+  <div class="window">
+    <div class="titlebar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <div class="tab">script-review-mcp setup — 90 sec</div>
+    </div>
+    <div class="term"><span class="comment"># 1. クローン & 仮想環境</span>
+<span class="prompt">$</span> <span class="cmd">git clone</span> <span class="path">https://github.com/yama-kiyo/script-review-mcp.git</span>
+<span class="prompt">$</span> <span class="cmd">cd</span> script-review-mcp
+<span class="prompt">$</span> <span class="cmd">python3</span> -m venv .venv <span class="divider">&&</span> <span class="cmd">source</span> .venv/bin/activate
+<span class="prompt">$</span> <span class="cmd">pip install</span> -e .
+<span class="info">Successfully installed mcp-1.x.x python-docx-1.1.x script-review-mcp-0.1.0</span>
+
+<span class="comment"># 2. Claude Code に MCPサーバーとして登録</span>
+<span class="prompt">$</span> <span class="cmd">claude mcp add</span> script-review <span class="flag">--scope</span> user <span class="flag">--</span> <span class="path">"$(pwd)/.venv/bin/python"</span> -m script_review_mcp
+<span class="ok">Added stdio MCP server</span> script-review to user config
+
+<span class="comment"># 3. 接続確認</span>
+<span class="prompt">$</span> <span class="cmd">claude mcp list</span> | grep script-review
+script-review: ... - <span class="ok">✓ Connected</span>
+
+<span class="divider">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+
+<span class="comment"># 4. Claude Code を起動して、自然言語で話しかけるだけ</span>
+<span class="prompt">$</span> <span class="cmd">claude</span>
+
+<span class="info">&gt;</span> <span class="purple">この脚本を構造診断してください</span>
+<span class="info">&gt;</span> <span class="path">~/Desktop/my_drama.docx</span>
+
+<span class="info">[parse]</span> 30 話を検出 / 25,140 字
+<span class="info">[review]</span> 5 レイヤーで構造診断中...
+<span class="ok">✓ 構造診断レポート完成</span>
+   - 総合スコア: 82/100
+   - 強み 3 点 / 改善点 3 件 (各 A/B/C 3 案併記)
+   - 出力: マークダウン形式 (約 8,000 字)
+
+<span class="prompt">$</span> <span class="info">▍</span></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>診断レポート デモ</title>
+<style>
+  :root {
+    --ink: #0B0B0D;
+    --pearl: #F4F0E8;
+    --paper: #ffffff;
+    --line: #d8d3c7;
+    --line-soft: #ebe6da;
+    --ai: #7e3ad8;
+    --upscale: #2a7adb;
+    --cg: #136c4f;
+    --gold: #b89464;
+    --crimson: #a23a3a;
+    --green: #1d6b3d;
+  }
+  body {
+    margin: 0; padding: 48px;
+    font-family: "Helvetica Neue", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+    background: var(--pearl);
+    color: var(--ink);
+    width: 1480px;
+    line-height: 1.7;
+  }
+  .header {
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+  }
+  .header .title {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .header .subtitle {
+    font-size: 13px;
+    color: #555;
+    margin-top: 6px;
+  }
+  .meta-row {
+    display: flex;
+    gap: 32px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #555;
+  }
+  .meta-row b { color: var(--ink); font-weight: 600; }
+  .score-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 2fr;
+    gap: 28px;
+    align-items: center;
+  }
+  .score {
+    text-align: center;
+  }
+  .score-num {
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .score-num .small { font-size: 24px; color: #888; }
+  .score-label {
+    font-size: 12px;
+    color: #777;
+    margin-top: 6px;
+    letter-spacing: 0.05em;
+  }
+  .summary {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.8;
+    border-left: 3px solid var(--gold);
+    padding-left: 16px;
+  }
+  h2 {
+    font-size: 18px;
+    margin-top: 32px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 6px;
+  }
+  .layers {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .layer-card {
+    background: var(--paper);
+    border: 1px solid var(--line-soft);
+    border-radius: 4px;
+    padding: 14px 16px;
+  }
+  .layer-num {
+    font-size: 11px;
+    color: #999;
+    letter-spacing: 0.1em;
+  }
+  .layer-name {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 4px 0 8px;
+  }
+  .layer-headline {
+    font-size: 12px;
+    color: #444;
+    line-height: 1.6;
+  }
+  .strengths {
+    background: var(--paper);
+    border: 1px solid var(--line-soft);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }
+  .strengths h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: var(--green);
+    letter-spacing: 0.05em;
+  }
+  .strengths ul {
+    margin: 0;
+    padding-left: 22px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #333;
+  }
+  .improvement {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+  }
+  .improvement-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .priority {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #fff;
+  }
+  .priority.high { background: var(--crimson); }
+  .improvement-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .problem {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 12px;
+    padding-left: 12px;
+    border-left: 2px solid var(--line);
+  }
+  .options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .option {
+    border: 1px solid var(--line-soft);
+    border-radius: 4px;
+    padding: 12px 14px;
+    background: #faf8f2;
+  }
+  .option-label {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .option-tag {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    color: #fff;
+    font-weight: 600;
+  }
+  .option-tag.a { background: #6c7a89; }
+  .option-tag.b { background: var(--upscale); }
+  .option-tag.c { background: var(--ai); }
+  .option-row {
+    font-size: 11px;
+    color: #444;
+    line-height: 1.6;
+    margin: 4px 0;
+  }
+  .option-row b {
+    color: #222;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 64px;
+  }
+  .footer {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #888;
+  }
+  .footer .brand {
+    color: var(--ink);
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">構造診断レポート — 連載ドラマ・サンプル</div>
+    <div class="subtitle">Generated by script-review-mcp (PEARL Studio) — Claude による5レイヤー診断</div>
+    <div class="meta-row">
+      <span><b>総エピソード数:</b> 30</span>
+      <span><b>総文字数:</b> 25,140 字</span>
+      <span><b>FPS:</b> 24（参考値）</span>
+      <span><b>診断時間:</b> 約 4 分</span>
+    </div>
+  </div>
+
+  <div class="score-card">
+    <div class="score">
+      <div class="score-num">82<span class="small">/100</span></div>
+      <div class="score-label">総合スコア</div>
+    </div>
+    <div class="score">
+      <div class="score-num">8.5<span class="small">/10</span></div>
+      <div class="score-label">連載ドラマとしての完成度</div>
+    </div>
+    <div class="summary">
+      第1話のフックから最終話の決着まで、シリーズ全体の感情曲線が「Cinderella」型として綺麗に機能している。
+      中盤（第14〜17話）でやや勢いが減速する箇所があるが、構造美と人間心理の両立は十分に達成されている。
+    </div>
+  </div>
+
+  <h2>5 レイヤーの診断ヘッドライン</h2>
+  <div class="layers">
+    <div class="layer-card">
+      <div class="layer-num">LAYER 1</div>
+      <div class="layer-name">シリーズアーク</div>
+      <div class="layer-headline">第1話のフック強。終盤の重み十分。中盤に減速ゾーンあり</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-num">LAYER 2</div>
+      <div class="layer-name">各話の機能</div>
+      <div class="layer-headline">関係変化型が中心。第15話・第19話に機能重複あり</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-num">LAYER 3</div>
+      <div class="layer-name">感情アーク</div>
+      <div class="layer-headline">Cinderella型。主人公アーク良好、対比キャラに伸びしろ</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-num">LAYER 4</div>
+      <div class="layer-name">キャラ動機線</div>
+      <div class="layer-headline">主役・対立軸の動機納得感 4.5/5。脇役 1 名に動機線の補強余地</div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-num">LAYER 5</div>
+      <div class="layer-name">テーマ貫徹度</div>
+      <div class="layer-headline">顕在テーマ・潜在テーマともに最終話で結実。整合性高</div>
+    </div>
+  </div>
+
+  <h2>強み（3点）</h2>
+  <div class="strengths">
+    <h3>STRENGTHS</h3>
+    <ul>
+      <li>第1話冒頭のシークエンスが「視聴を継続させる引き」として極めて強く機能している。提示される問いが明確で、読み手が能動的に答えを探したくなる構造</li>
+      <li>主人公の動機線が第1話と最終話で明確に変化しており、変化の根拠となるエピソードが第7話・第14話・第23話に丁寧に配置されている</li>
+      <li>潜在テーマ（弱者の連帯）が第6話以降に静かに醸成され、最終話で結実する伏線設計が美しい</li>
+    </ul>
+  </div>
+
+  <h2>改善ポイント・対応策（A=保守 / B=中規模 / C=踏み込み）</h2>
+
+  <div class="improvement">
+    <div class="improvement-header">
+      <span class="priority high">優先度: 高</span>
+      <span class="improvement-title">中盤（第14〜17話）の機能重複と勢い減速</span>
+    </div>
+    <div class="problem">
+      第15話と第19話の「主要人物が過去を語るシーン」が機能的に重複しており、視聴者の集中力が落ちる箇所として指摘できる。
+      レイヤー2（各話の機能）の観点で、情報開示型が連続している。
+    </div>
+    <div class="options">
+      <div class="option">
+        <div class="option-label">A. 保守的修正<span class="option-tag a">工数 軽</span></div>
+        <div class="option-row"><b>やること:</b> 第15話の回想シーンを 30 秒短縮、第19話との重複情報を削る</div>
+        <div class="option-row"><b>効果:</b> テンポ改善、両話の独立性向上</div>
+        <div class="option-row"><b>トレードオフ:</b> 第15話の感情の深さがやや浅くなる</div>
+      </div>
+      <div class="option">
+        <div class="option-label">B. 中規模リライト<span class="option-tag b">工数 中</span></div>
+        <div class="option-row"><b>やること:</b> 第15話を「関係変化型」に再設計。回想を別キャラ視点に変更</div>
+        <div class="option-row"><b>効果:</b> 機能重複解消＋多視点化</div>
+        <div class="option-row"><b>トレードオフ:</b> 既存第16話との接続を再調整する必要</div>
+      </div>
+      <div class="option">
+        <div class="option-label">C. 構造踏み込み<span class="option-tag c">工数 重</span></div>
+        <div class="option-row"><b>やること:</b> 第14〜17話を3話に圧縮、空いた1話を最終局面の準備に充てる</div>
+        <div class="option-row"><b>効果:</b> 終盤の盛り上がりがさらに強化される</div>
+        <div class="option-row"><b>トレードオフ:</b> 連載枠の調整が必要、伏線の再配置が広範囲</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>※自動診断は初期値の補助。最終判断は書き手が握ってください。</div>
+    <div class="brand">script-review-mcp v0.1.0 / MIT License</div>
+  </div>
+</body>
+</html>

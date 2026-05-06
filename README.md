@@ -71,6 +71,8 @@ claude mcp list | grep script-review
 
 ## 使い方
 
+### Step 1: 診断する
+
 Claude に話しかけるだけ:
 
 ```
@@ -78,7 +80,19 @@ Claude に話しかけるだけ:
 /path/to/your/script.docx
 ```
 
-Claude が `review_script` ツールを呼び出して docx を読み込み、5レイヤーの診断レポートをマークダウンで返します。
+Claude が `review_script` ツールを呼び出して docx を読み込み、5レイヤーの診断レポートをマークダウンで返します（チャット欄に直接表示されます）。
+
+### Step 2（任意）: 診断レポートを画像化する
+
+レポートを読んで気に入ったら、続けて Claude に頼むだけ:
+
+```
+このレポートを画像にしてください
+```
+
+`render_diagnosis_report` ツールが起動し、PEARL流デザイン（Pearl/Inkパレット、A案/B案/C案カラーコード、優先度バッジ、スコアカード）の付いた **HTML / PNG** を生成します。出力は `~/Desktop/script-review-output/` にタイムスタンプ付きで保存され、Finder で開けばすぐ確認できます。
+
+> 一気にやりたい場合は、最初から「**診断して画像も作って**」と話しかけると Claude が両ツールを連続実行します。
 
 > **注**: MCP の Prompts 機能（`/script-review` 形式のスラッシュコマンド）は Claude Code v2.1 系で引数渡しが安定動作しないため、**Tool 経由のチャット呼び出しを推奨**します。Prompt も登録されているので、対応クライアントなら使えます。
 
@@ -193,9 +207,28 @@ cp script_all.md script_all.local.md
 
 ---
 
+## 出力先のカスタマイズ
+
+PNG/HTML/MD のデフォルト出力先は `~/Desktop/script-review-output/` です。変更したい場合:
+
+```bash
+export SCRIPT_REVIEW_OUTPUT="$HOME/Documents/script-reviews"
+```
+
+または Claude に頼む際にディレクトリ指定も可能:
+
+```
+このレポートを ~/Desktop/myproject/ に画像化してください
+```
+
+PNG レンダリングには **Google Chrome / Chromium / Microsoft Edge** のいずれかが必要です（macOS / Linux / Windows のいずれでも自動検出）。見つからない場合は HTML のみ生成されます。
+
+---
+
 ## ロードマップ
 
 - ✅ Phase 1: 連載脚本・全話通し構造診断 (`review_script` Tool)
+- ✅ Phase 1.5: 診断レポートのビジュアル化 (`render_diagnosis_report` Tool)
 - 🔜 Phase 2: 1話単位の三幕構成診断 (`review_episode`)
 - 🔜 Phase 3: プロット用診断 (`review_plot`)
 - 🔜 Phase 4: キャラ整合性チェック / セリフ品質診断 / IP安全性チェック
