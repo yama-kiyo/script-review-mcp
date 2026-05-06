@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "script-review-mcp"
+version = "0.1.0"
+description = "MCP server for drama / film / novel script structure review. Diagnoses series arc, emotional arc, character motivation, and theme coherence from a .docx file."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+  {name = "PEARL株式会社 / 山本清史 (Yamakiyo)", email = "yamakiyo@case.bz"}
+]
+keywords = ["mcp", "script", "screenplay", "drama", "story-structure", "claude-code", "docx"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Multimedia :: Video",
+  "Topic :: Text Processing :: Linguistic",
+]
+dependencies = [
+  "mcp>=1.0.0",
+  "python-docx>=1.1.0",
+]
+
+[project.scripts]
+script-review-mcp = "script_review_mcp.server:main"
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yama-kiyo/script-review-mcp"
+Repository = "https://github.com/yama-kiyo/script-review-mcp"
+Issues = "https://github.com/yama-kiyo/script-review-mcp/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+# *.local.md はパッケージに含めない (個人カスタマイズは公開対象外)
+script_review_mcp = ["prompts/script_all.md"]
